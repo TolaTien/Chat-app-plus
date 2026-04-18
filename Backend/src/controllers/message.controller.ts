@@ -78,13 +78,22 @@ class Message{
                 })
             }
 
-            let image;
+            let image, video, file, fileName;
+
             if(req.file){
                 const upload = await uploadStream(req.file.buffer);
-                image = upload.secure_url;
+                if(req.file.mimetype.endsWith("video/")) {
+                    video = upload.secure_url;
+                } else if( req.file.mimetype.endsWith("image/")) {
+                    image = upload.secure_url;
+                } else {
+                    file = upload.secure_url;
+                    fileName = req.file.originalname;
+                }
+                // image = upload.secure_url;
             };
 
-            if(!text && !image){
+            if(!text && !image && !file && !video){
                 return res.status(400).json({ message: "Tin nhắn không được để trống"});
             }
 
@@ -93,10 +102,13 @@ class Message{
                 conversationId: conversation._id,
                 text,
                 image,
+                video,
+                file,
+                fileName,
                 seenBy: [new Types.ObjectId(myId)]
             })
 
-            conversation.lastMessage = text || "Hình ảnh";
+            conversation.lastMessage = text || ( image ? "Hình ảnh" : ( video ? "Video" : fileName ));
 
             await conversation.save();
 

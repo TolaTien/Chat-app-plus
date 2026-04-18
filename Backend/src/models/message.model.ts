@@ -20,6 +20,12 @@ const messageSchema = new mongoose.Schema({
     video: {
         type: String
     },
+    file: {
+        type: String
+    },
+    fileName: {
+        type: String
+    },
     seenBy: {
         type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
     }
