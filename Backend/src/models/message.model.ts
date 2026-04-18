@@ -17,6 +17,9 @@ const messageSchema = new mongoose.Schema({
     image: {
         type: String
     },
+    video: {
+        type: String
+    },
     seenBy: {
         type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
     }

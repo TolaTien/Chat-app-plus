@@ -6,6 +6,7 @@ import cors from 'cors';
 
 import { app, server } from "./config/socket.js"
 import { connectDB } from "./config/db.js";
+import { Routers } from "./routes/index.routes.js";
 
 
 
@@ -20,7 +21,7 @@ app.use(cors({
     credentials: true
 }));
 app.use(cookieParser());
-
+app.use(Routers)
 
 
 app.get('/', (req: Request, res: Response) =>{

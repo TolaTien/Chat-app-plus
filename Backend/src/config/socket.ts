@@ -13,7 +13,11 @@ const io = new Server(server, {
     }
 })
 
-const onlineUsers = new Map<string, Set<string>>()
+const onlineUsers = new Map<string, Set<string>>();
+
+export const getSocketId = (userId: string) => {
+    return onlineUsers.get(userId);
+}
 
 io.on("connection", (socket) => {
     const userId = socket.handshake.auth.userId as string;
