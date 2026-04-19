@@ -82,9 +82,9 @@ class Message{
 
             if(req.file){
                 const upload = await uploadStream(req.file.buffer);
-                if(req.file.mimetype.endsWith("video/")) {
+                if(req.file.mimetype.startsWith("video/")) {
                     video = upload.secure_url;
-                } else if( req.file.mimetype.endsWith("image/")) {
+                } else if( req.file.mimetype.startsWith("image/")) {
                     image = upload.secure_url;
                 } else {
                     file = upload.secure_url;
