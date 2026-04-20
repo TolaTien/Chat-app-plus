@@ -152,6 +152,51 @@ class Message{
             return res.status(500).json({ message: "Lỗi khi đánh dấu", err});
         }
     }
+    // Thêm thành viên vào nhóm
+    async addMember(req: Request, res: Response){
+        try{
+            const adminId = req.user?.userId;
+            const { conversationId, friendIds } = req.body;
+
+            const conversation = await Conversation.findById(conversationId);
+            if(!conversation){
+                return res.status(404).json({ message: "Không tìm thấy nhóm" });
+            }
+
+            if(!conversation.isGroup){
+                return res.status(400).json({ message: "Đây không phải là nhóm" });
+            }
+
+            if(conversation.groupAdmin?.toString() !== adminId){
+                return res.status(403).json({ message: "Chỉ quản trị viên mới có quyền thêm thành viên" });
+            }
+
+            const newParticipants = friendIds.filter(
+                (id: string) => !conversation.participants.some(p => p.toString() === id)
+            );
+
+            if(newParticipants.length === 0){
+                return res.status(400).json({ message: "Tất cả người dùng này đã có trong nhóm" });
+            }
+
+            conversation.participants.push(...newParticipants);
+            await conversation.save();
+
+            const updatedConversation = await conversation.populate("participants", "fullName avt");
+            
+            const targetRooms = [
+                conversation._id.toString(),
+                ...updatedConversation.participants.map((p: any) => p._id.toString())
+            ];
+            io.to(targetRooms).emit("groupUpdated", updatedConversation);
+
+            return res.status(200).json({ message: "Thêm thành viên thành công", data: updatedConversation });
+
+        }catch(err: any){
+            console.log(err);
+            return res.status(500).json({ message: "Lỗi khi thêm thành viên", err });
+        }
+    }
 }
 
 export default new Message();
